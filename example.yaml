@@ -165,6 +165,7 @@ datadog_api_key: "farts"
 datadog_trace_api_address: ""
 
 # == SignalFx ==
+# SignalFx can be a sink for metrics and events.
 
 # The API token to use, either always, or if no
 # signalfx_per_tag_api_keys match
