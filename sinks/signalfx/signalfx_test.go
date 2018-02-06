@@ -8,6 +8,7 @@ import (
 
 	"github.com/DataDog/datadog-go/statsd"
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/datapoint/dpsink"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/sirupsen/logrus"
@@ -206,4 +207,68 @@ func TestSignalFxEventFlush(t *testing.T) {
 	assert.Equal(t, "pie", dims["yay"], "Event missing a common tag")
 	assert.Equal(t, "", dims["novalue"], "Event has a busted tag")
 	assert.Equal(t, "glooblestoots", dims["host"], "Metric is missing host tag")
+}
+
+func TestSignalFxFlushMultiKey(t *testing.T) {
+	stats, _ := statsd.NewBuffered("localhost:1235", 1024)
+	fallback := NewFakeSink()
+	specialized := NewFakeSink()
+
+	sink, err := NewSignalFxSink("host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fallback, "test_by", map[string]dpsink.Sink{"available": specialized})
+
+	assert.NoError(t, err)
+
+	interMetrics := []samplers.InterMetric{
+		samplers.InterMetric{
+			Name:      "a.b.c",
+			Timestamp: 1476119058,
+			Value:     float64(100),
+			Tags: []string{
+				"foo:bar",
+				"baz:quz",
+				"test_by:needs_fallback",
+			},
+			Type: samplers.GaugeMetric,
+		},
+		samplers.InterMetric{
+			Name:      "a.b.c",
+			Timestamp: 1476119058,
+			Value:     float64(100),
+			Tags: []string{
+				"foo:bar",
+				"baz:quz",
+				"test_by:available",
+			},
+			Type: samplers.GaugeMetric,
+		},
+	}
+
+	sink.Flush(context.TODO(), interMetrics)
+
+	assert.Equal(t, 1, len(fallback.points))
+	assert.Equal(t, 1, len(specialized.points))
+	{
+		point := fallback.points[0]
+		assert.Equal(t, "a.b.c", point.Metric, "Metric has wrong name")
+		assert.Equal(t, datapoint.Gauge, point.MetricType, "Metric has wrong type")
+		dims := point.Dimensions
+		assert.Equal(t, 5, len(dims), "Metric has incorrect tag count")
+		assert.Equal(t, "bar", dims["foo"], "Metric has a busted tag")
+		assert.Equal(t, "quz", dims["baz"], "Metric has a busted tag")
+		assert.Equal(t, "pie", dims["yay"], "Metric is missing common tag")
+		assert.Equal(t, "glooblestoots", dims["host"], "Metric is missing host tag")
+		assert.Equal(t, "needs_fallback", dims["test_by"], "Metric should have the right test_by tag")
+	}
+	{
+		point := specialized.points[0]
+		assert.Equal(t, "a.b.c", point.Metric, "Metric has wrong name")
+		assert.Equal(t, datapoint.Gauge, point.MetricType, "Metric has wrong type")
+		dims := point.Dimensions
+		assert.Equal(t, 5, len(dims), "Metric has incorrect tag count")
+		assert.Equal(t, "bar", dims["foo"], "Metric has a busted tag")
+		assert.Equal(t, "quz", dims["baz"], "Metric has a busted tag")
+		assert.Equal(t, "pie", dims["yay"], "Metric is missing common tag")
+		assert.Equal(t, "glooblestoots", dims["host"], "Metric is missing host tag")
+		assert.Equal(t, "available", dims["test_by"], "Metric should have the right test_by tag")
+	}
 }

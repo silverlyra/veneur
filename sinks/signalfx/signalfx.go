@@ -45,12 +45,14 @@ func (d *destinations) pointCollection() *collection {
 }
 
 func (c *collection) addPoint(key string, point *datapoint.Datapoint) {
-	if c.pointsByKey != nil {
-		if _, ok := c.pointsByKey[key]; ok {
+	if c.destinations.byKey != nil {
+		if _, ok := c.destinations.byKey[key]; ok {
 			c.pointsByKey[key] = append(c.pointsByKey[key], point)
 			return
 		}
 	}
+	logrus.WithField("key", key).WithField("pbk", c.pointsByKey).Info("I have a fallback")
+
 	c.points = append(c.points, point)
 }
 
