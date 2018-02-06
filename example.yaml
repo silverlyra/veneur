@@ -165,7 +165,9 @@ datadog_api_key: "farts"
 datadog_trace_api_address: ""
 
 # == SignalFx ==
-# SignalFx can be a sink for metrics.
+
+# The API token to use, either always, or if no
+# signalfx_per_tag_api_keys match
 signalfx_api_key: "abc123"
 
 # Where to send metrics
@@ -173,6 +175,18 @@ signalfx_endpoint_base: "https://ingest.signalfx.com"
 
 # The tag we'll add to each metric that contains the hostname we came from
 signalfx_hostname_tag: "host"
+
+# The tag that we'll (optionally) use to look up values in
+# signalfx_per_tag_api_keys. If this is empty, the SignalFX sink uses
+# only signalfx_api_key.
+signalfx_vary_key_by: host_operator
+
+# If signalfx_vary_key_by is set, and matches one of the keys in here,
+# use the value as the signalfx api token. If this is empty, only
+# signalfx_api_key is used to submit metrics.
+signalfx_per_tag_api_keys:
+  cory: "more_specific_farts"
+  asf: "definitely_no_farts"
 
 # == LightStep ==
 # LightStep can be a sink for trace spans.

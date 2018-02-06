@@ -19,6 +19,8 @@ import (
 
 type SignalFxSink struct {
 	client           dpsink.Sink
+	keyClients       map[string]dpsink.Sink
+	varyBy           string
 	endpoint         string
 	hostnameTag      string
 	hostname         string
@@ -28,14 +30,24 @@ type SignalFxSink struct {
 	traceClient      *trace.Client
 }
 
+func NewClient(endpoint, apiKey string) dpsink.Sink {
+	httpSink := sfxclient.NewHTTPSink()
+	httpSink.AuthToken = apiKey
+	httpSink.DatapointEndpoint = fmt.Sprintf("%s/v2/datapoint", endpoint)
+	httpSink.EventEndpoint = fmt.Sprintf("%s/v2/event", endpoint)
+	return httpSink
+}
+
 // NewSignalFxSink creates a new SignalFx sink for metrics.
-func NewSignalFxSink(apiKey string, endpoint string, hostnameTag string, hostname string, commonDimensions map[string]string, stats *statsd.Client, log *logrus.Logger, client dpsink.Sink) (*SignalFxSink, error) {
+func NewSignalFxSink(apiKey string, endpoint string, hostnameTag string, hostname string, commonDimensions map[string]string, stats *statsd.Client, log *logrus.Logger, client dpsink.Sink, varyBy string, perTagKeys map[string]string) (*SignalFxSink, error) {
 	if client == nil {
-		httpSink := sfxclient.NewHTTPSink()
-		httpSink.AuthToken = apiKey
-		httpSink.DatapointEndpoint = fmt.Sprintf("%s/v2/datapoint", endpoint)
-		httpSink.EventEndpoint = fmt.Sprintf("%s/v2/event", endpoint)
-		client = httpSink
+		client = NewClient(endpoint, apiKey)
+	}
+	keyClients := map[string]dpsink.Sink{}
+	if varyBy != "" {
+		for tagValue, key := range perTagKeys {
+			keyClients[tagValue] = NewClient(endpoint, key)
+		}
 	}
 
 	return &SignalFxSink{
@@ -46,6 +58,8 @@ func NewSignalFxSink(apiKey string, endpoint string, hostnameTag string, hostnam
 		commonDimensions: commonDimensions,
 		statsd:           stats,
 		log:              log,
+		keyClients:       keyClients,
+		varyBy:           varyBy,
 	}, nil
 }
 
