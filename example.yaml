@@ -185,8 +185,14 @@ signalfx_vary_key_by: host_operator
 # use the value as the signalfx api token. If this is empty, only
 # signalfx_api_key is used to submit metrics.
 signalfx_per_tag_api_keys:
-  cory: "more_specific_farts"
-  asf: "definitely_no_farts"
+  # metrics tagged with host_operator:cory will be submitted with api
+  # key "farts_in_a_general_direction"
+  - name: "cory"
+    api_key: "farts_in_a_general_direction"
+  # metrics tagged with host_operator:asf will be submitted with api
+  # key "definitely_no_farts"
+  - name: "asf"
+    api_key: "definitely_no_farts"
 
 # == LightStep ==
 # LightStep can be a sink for trace spans.

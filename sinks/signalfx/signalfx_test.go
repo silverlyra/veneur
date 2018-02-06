@@ -39,7 +39,8 @@ func (fs *FakeSink) AddEvents(ctx context.Context, events []*event.Event) (err e
 func TestNewSignalFxSink(t *testing.T) {
 	// test the variables that have been renamed
 	stats, _ := statsd.NewBuffered("localhost:1235", 1024)
-	sink, err := NewSignalFxSink("secret", "http://www.example.com", "host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), nil, "", nil)
+	client := NewClient("http://www.example.com", "secret")
+	sink, err := NewSignalFxSink("host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), client, "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -48,14 +49,13 @@ func TestNewSignalFxSink(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	httpsink, ok := sink.client.(*sfxclient.HTTPSink)
+	httpsink, ok := client.(*sfxclient.HTTPSink)
 	if !ok {
 		assert.Fail(t, "SignalFx sink isn't the correct type")
 	}
 	assert.Equal(t, "http://www.example.com/v2/datapoint", httpsink.DatapointEndpoint)
 	assert.Equal(t, "http://www.example.com/v2/event", httpsink.EventEndpoint)
 
-	assert.Equal(t, "http://www.example.com", sink.endpoint)
 	assert.Equal(t, "signalfx", sink.Name())
 	assert.Equal(t, "host", sink.hostnameTag)
 	assert.Equal(t, "glooblestoots", sink.hostname)
@@ -65,7 +65,7 @@ func TestNewSignalFxSink(t *testing.T) {
 func TestSignalFxFlushRouting(t *testing.T) {
 	stats, _ := statsd.NewBuffered("localhost:1235", 1024)
 	fakeSink := NewFakeSink()
-	sink, err := NewSignalFxSink("secret", "http://www.example.com", "host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fakeSink, "", nil)
+	sink, err := NewSignalFxSink("host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fakeSink, "", nil)
 
 	assert.NoError(t, err)
 
@@ -119,7 +119,7 @@ func TestSignalFxFlushRouting(t *testing.T) {
 func TestSignalFxFlushGauge(t *testing.T) {
 	stats, _ := statsd.NewBuffered("localhost:1235", 1024)
 	fakeSink := NewFakeSink()
-	sink, err := NewSignalFxSink("secret", "http://www.example.com", "host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fakeSink, "", nil)
+	sink, err := NewSignalFxSink("host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fakeSink, "", nil)
 
 	assert.NoError(t, err)
 
@@ -151,7 +151,7 @@ func TestSignalFxFlushGauge(t *testing.T) {
 func TestSignalFxFlushCounter(t *testing.T) {
 	stats, _ := statsd.NewBuffered("localhost:1235", 1024)
 	fakeSink := NewFakeSink()
-	sink, err := NewSignalFxSink("secret", "http://www.example.com", "host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fakeSink, "", nil)
+	sink, err := NewSignalFxSink("host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fakeSink, "", nil)
 
 	assert.NoError(t, err)
 
@@ -185,7 +185,7 @@ func TestSignalFxFlushCounter(t *testing.T) {
 func TestSignalFxEventFlush(t *testing.T) {
 	stats, _ := statsd.NewBuffered("localhost:1235", 1024)
 	fakeSink := NewFakeSink()
-	sink, err := NewSignalFxSink("secret", "http://www.example.com", "host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fakeSink, "", nil)
+	sink, err := NewSignalFxSink("host", "glooblestoots", map[string]string{"yay": "pie"}, stats, logrus.New(), fakeSink, "", nil)
 
 	assert.NoError(t, err)
 

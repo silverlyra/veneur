@@ -46,9 +46,9 @@ type Config struct {
 	SignalfxAPIKey               string    `yaml:"signalfx_api_key"`
 	SignalfxEndpointBase         string    `yaml:"signalfx_endpoint_base"`
 	SignalfxHostnameTag          string    `yaml:"signalfx_hostname_tag"`
-	SignalfxPerTagAPIKeys        struct {
-		Asf  string `yaml:"asf"`
-		Cory string `yaml:"cory"`
+	SignalfxPerTagAPIKeys        []struct {
+		APIKey string `yaml:"api_key"`
+		Name   string `yaml:"name"`
 	} `yaml:"signalfx_per_tag_api_keys"`
 	SignalfxVaryKeyBy             string   `yaml:"signalfx_vary_key_by"`
 	SsfBufferSize                 int      `yaml:"ssf_buffer_size"`
