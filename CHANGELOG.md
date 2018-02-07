@@ -29,6 +29,7 @@
 ** New type `ssf.Samples` holding a batch of samples which can be submitted conveniently through `trace/metrics`.
 ** Method `trace.(*Trace).Add`, which allows adding metrics to a trace span.
 * `veneur-proxy` has a new configuration option `forward_timeout` which allows specifying how long forwarding a batch to global veneur servers may take in total. Thanks, [antifuchs](https://github.com/antifuchs)!
+* `veneur` has new configuration options `forward_timeout`, `metrics_flush_timeout`, and `span_flush_timeout`. They control how long veneur will allow for each flush operation to take and report an error if the flush takes longer than expected. Thanks, [antifuchs](https://github.com/antifuchs)!
 
 # 2.0.0, 2018-01-09
 
