@@ -1,6 +1,7 @@
 package veneur
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -391,12 +392,12 @@ func (tw *SpanWorker) Work() {
 }
 
 // Flush invokes flush on each sink.
-func (tw *SpanWorker) Flush() {
+func (tw *SpanWorker) Flush(ctx context.Context) {
 
 	// Flush and time each sink.
 	for _, s := range tw.sinks {
 		sinkFlushStart := time.Now()
-		s.Flush()
+		s.Flush(ctx)
 		tw.stats.TimeInMilliseconds("worker.span.flush_duration_ns", float64(time.Since(sinkFlushStart).Nanoseconds()), []string{fmt.Sprintf("sink:%s", s.Name())}, 1.0)
 	}
 }

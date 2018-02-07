@@ -76,5 +76,5 @@ type SpanSink interface {
 
 	// Invoked at the same interval as metric flushes, this can be used as a
 	// signal for the sink to write out if it was buffering or something.
-	Flush()
+	Flush(context.Context)
 }

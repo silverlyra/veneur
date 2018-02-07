@@ -2,6 +2,7 @@
 package ssfmetrics
 
 import (
+	"context"
 	"fmt"
 	"sync/atomic"
 
@@ -111,7 +112,7 @@ func (m metricExtractionSink) Ingest(span *ssf.SSFSpan) error {
 	return nil
 }
 
-func (m metricExtractionSink) Flush() {
+func (m metricExtractionSink) Flush(context.Context) {
 	m.statsd.Count(sinks.MetricKeyTotalSpansFlushed, atomic.LoadInt64(&m.spansProcessed), []string{fmt.Sprintf("sink:%s", m.Name())}, 1.0)
 	m.statsd.Count(sinks.MetricKeyTotalMetricsFlushed, atomic.LoadInt64(&m.metricsGenerated), []string{fmt.Sprintf("sink:%s", m.Name())}, 1.0)
 

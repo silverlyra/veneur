@@ -14,6 +14,7 @@ type Config struct {
 	FlushFile                     string    `yaml:"flush_file"`
 	FlushMaxPerBody               int       `yaml:"flush_max_per_body"`
 	ForwardAddress                string    `yaml:"forward_address"`
+	ForwardTimeout                string    `yaml:"forward_timeout"`
 	Hostname                      string    `yaml:"hostname"`
 	HTTPAddress                   string    `yaml:"http_address"`
 	IndicatorSpanTimerName        string    `yaml:"indicator_span_timer_name"`
@@ -37,6 +38,7 @@ type Config struct {
 	KafkaSpanSerializationFormat  string    `yaml:"kafka_span_serialization_format"`
 	KafkaSpanTopic                string    `yaml:"kafka_span_topic"`
 	MetricMaxLength               int       `yaml:"metric_max_length"`
+	MetricsFlushTimeout           string    `yaml:"metrics_flush_timeout"`
 	NumReaders                    int       `yaml:"num_readers"`
 	NumWorkers                    int       `yaml:"num_workers"`
 	OmitEmptyHostname             bool      `yaml:"omit_empty_hostname"`
@@ -46,6 +48,7 @@ type Config struct {
 	SignalfxAPIKey                string    `yaml:"signalfx_api_key"`
 	SignalfxEndpointBase          string    `yaml:"signalfx_endpoint_base"`
 	SignalfxHostnameTag           string    `yaml:"signalfx_hostname_tag"`
+	SpanFlushTimeout              string    `yaml:"span_flush_timeout"`
 	SsfBufferSize                 int       `yaml:"ssf_buffer_size"`
 	SsfListenAddresses            []string  `yaml:"ssf_listen_addresses"`
 	StatsAddress                  string    `yaml:"stats_address"`
